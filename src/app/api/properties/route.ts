@@ -37,7 +37,7 @@ export async function GET(req: Request) {
     });
 
     items = items.map((p: any) => {
-      let enriched = { ...p };
+      const enriched = { ...p };
       if (enriched.owner_mail) {
         const ownerDetails = userMap.get(enriched.owner_mail);
         if (ownerDetails) {

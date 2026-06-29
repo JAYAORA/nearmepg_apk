@@ -109,7 +109,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ firesto
 
     } else {
       // Legacy PG flow
-      let reservedAt = new Date(now).toISOString();
+      const reservedAt = new Date(now).toISOString();
       let reservedUntil = new Date(now + 8 * 60 * 1000).toISOString();
 
       if (!room.available) {

@@ -24,7 +24,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ firesto
       return NextResponse.json({ error: "Bed is already occupied" }, { status: 409 });
     }
 
-    let reservedAt = new Date(now).toISOString();
+    const reservedAt = new Date(now).toISOString();
     let reservedUntil = new Date(now + 8 * 60 * 1000).toISOString();
 
     if (bed.status === "reserved") {
