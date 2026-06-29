@@ -1,0 +1,19 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ----------------------------------------------------------------------
+    // SECURITY AUDIT (WAVE 8)
+    // ----------------------------------------------------------------------
+    // The NearMePG Next.js application uses the Firebase Admin SDK inside 
+    // server-side API routes (e.g. /api/*) for all database operations.
+    // Therefore, no client-side direct access to Firestore is needed.
+    // 
+    // This strictly denies all reads and writes coming from web browsers 
+    // or mobile clients using the Firebase Client SDK.
+    // ----------------------------------------------------------------------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
