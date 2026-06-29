@@ -54,14 +54,20 @@ export default function BookingPage() {
   const checkInParam = searchParams.get("checkIn");
   const checkOutParam = searchParams.get("checkOut");
 
-  const initialFrom = checkInParam ? new Date(checkInParam) : new Date();
-  const initialTo = checkOutParam ? new Date(checkOutParam) : new Date(Date.now() + 86400000);
-
-  const [checkIn, setCheckIn] = useState(() => initialFrom.toISOString().split("T")[0]);
-  const [checkOut, setCheckOut] = useState(() => initialTo.toISOString().split("T")[0]);
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: initialFrom,
-    to: initialTo,
+  const [checkIn, setCheckIn] = useState(() => {
+    const initialFrom = checkInParam ? new Date(checkInParam) : new Date();
+    return initialFrom.toISOString().split("T")[0];
+  });
+  
+  const [checkOut, setCheckOut] = useState(() => {
+    const initialTo = checkOutParam ? new Date(checkOutParam) : new Date(Date.now() + 86400000);
+    return initialTo.toISOString().split("T")[0];
+  });
+  
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
+    const initialFrom = checkInParam ? new Date(checkInParam) : new Date();
+    const initialTo = checkOutParam ? new Date(checkOutParam) : new Date(Date.now() + 86400000);
+    return { from: initialFrom, to: initialTo };
   });
   const [disabledDates, setDisabledDates] = useState<{ start: Date; end: Date }[]>([]);
 

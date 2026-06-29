@@ -264,14 +264,13 @@ function DropdownLink({
 
 export function Header() {
   const pathname = usePathname();
-  if (pathname.startsWith("/admin-portal")) return null;
-
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const isOwner = useIsOwner();
   const isAdmin = useIsAdmin();
   const [open, setOpen] = useState(false);
-  const { logout } = useAuth();
   const router = useRouter();
+
+  if (pathname.startsWith("/admin-portal")) return null;
 
   function handleLogout() {
     logout();

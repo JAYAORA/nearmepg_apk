@@ -207,7 +207,7 @@ export default function RoomDetailsModal({
   const handleSelect = (newDate: DateRange | undefined) => {
     if (newDate?.from && newDate?.to) {
       // Prevent selecting a range that contains disabled dates
-      let current = new Date(newDate.from);
+      const current = new Date(newDate.from);
       current.setHours(0, 0, 0, 0);
       const toDate = new Date(newDate.to);
       toDate.setHours(0, 0, 0, 0);
