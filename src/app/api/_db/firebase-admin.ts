@@ -5,11 +5,13 @@ import { readFileSync } from "fs";
 if (!admin.apps.length) {
   try {
     let serviceAccount;
-    // Check if the service account is provided via an environment variable (for Netlify/Production)
     if (process.env.FIREBASE_SERVICE_ACCOUNT) {
       serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+      // Ensure private key newlines are handled correctly, as some CI platforms escape them
+      if (serviceAccount.private_key) {
+        serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+      }
     } else {
-      // Fallback to local file for development
       const serviceAccountPath = join(process.cwd(), "firebase-service-account.json");
       serviceAccount = JSON.parse(readFileSync(serviceAccountPath, "utf-8"));
     }
@@ -18,7 +20,8 @@ if (!admin.apps.length) {
       credential: admin.credential.cert(serviceAccount),
     });
   } catch (error) {
-    console.error("Firebase admin initialization error", error);
+    console.error("Firebase admin initialization FATAL error:", error);
+    throw error;
   }
 }
 
