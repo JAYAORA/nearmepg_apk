@@ -1,13 +1,69 @@
-import type { Metadata } from "next";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Contact Us",
-  description:
-    "Get in touch with the NearMePG team for support, property listing inquiries, or any questions.",
-  alternates: { canonical: "https://nearmepg.com/contact" },
-};
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 export default function ContactPage() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const validateForm = () => {
+    if (formData.name.trim().length < 2) {
+      toast.error("Name must be at least 2 characters long.");
+      return false;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Please enter a valid email address.");
+      return false;
+    }
+    if (formData.message.trim().length < 10) {
+      toast.error("Message must be at least 10 characters long.");
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to send message.");
+      }
+
+      toast.success("Message sent successfully! We will get back to you soon.");
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } catch (error: any) {
+      toast.error(error.message || "An error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <main className="container mx-auto px-4 py-10 max-w-2xl">
       {/* Breadcrumb */}
@@ -57,24 +113,21 @@ export default function ContactPage() {
       </div>
 
       {/* Contact form */}
-      <form
-        action="mailto:support@nearmepg.com"
-        method="post"
-        encType="text/plain"
-        className="space-y-5"
-      >
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div>
           <label
             htmlFor="contact-name"
             className="block text-sm font-semibold text-foreground mb-1.5"
           >
-            Your Name
+            Your Name <span className="text-red-500">*</span>
           </label>
           <input
             id="contact-name"
             name="name"
             type="text"
             required
+            value={formData.name}
+            onChange={handleChange}
             placeholder="Ravi Kumar"
             className="w-full border border-border rounded-lg px-4 py-2.5 text-sm bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
@@ -85,13 +138,15 @@ export default function ContactPage() {
             htmlFor="contact-email"
             className="block text-sm font-semibold text-foreground mb-1.5"
           >
-            Email Address
+            Email Address <span className="text-red-500">*</span>
           </label>
           <input
             id="contact-email"
             name="email"
             type="email"
             required
+            value={formData.email}
+            onChange={handleChange}
             placeholder="you@example.com"
             className="w-full border border-border rounded-lg px-4 py-2.5 text-sm bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
@@ -108,6 +163,8 @@ export default function ContactPage() {
             id="contact-subject"
             name="subject"
             type="text"
+            value={formData.subject}
+            onChange={handleChange}
             placeholder="Booking query / Listing inquiry / Other"
             className="w-full border border-border rounded-lg px-4 py-2.5 text-sm bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
@@ -118,13 +175,15 @@ export default function ContactPage() {
             htmlFor="contact-message"
             className="block text-sm font-semibold text-foreground mb-1.5"
           >
-            Message
+            Message <span className="text-red-500">*</span>
           </label>
           <textarea
             id="contact-message"
             name="message"
             required
             rows={5}
+            value={formData.message}
+            onChange={handleChange}
             placeholder="How can we help you?"
             className="w-full border border-border rounded-lg px-4 py-2.5 text-sm bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
           />
@@ -132,13 +191,21 @@ export default function ContactPage() {
 
         <button
           type="submit"
-          className="w-full bg-indigo-600 hover:bg-indigo-700 transition-colors text-white font-semibold py-3 rounded-lg text-sm"
+          disabled={isSubmitting}
+          className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 disabled:cursor-not-allowed transition-colors text-white font-semibold py-3 rounded-lg text-sm flex justify-center items-center gap-2"
         >
-          Send Message
+          {isSubmitting ? (
+            <>
+              <div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+              Sending...
+            </>
+          ) : (
+            "Send Message"
+          )}
         </button>
       </form>
 
-      {/* JSON-LD */}
+      {/* JSON-LD - Added via dangerouslySetInnerHTML directly inside a script tag */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
