@@ -9,7 +9,14 @@ if (!admin.apps.length) {
     let serviceAccount;
     if (process.env.FIREBASE_SERVICE_ACCOUNT) {
       console.log("Firebase: Using FIREBASE_SERVICE_ACCOUNT from env.");
-      serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+      
+      let jsonString = process.env.FIREBASE_SERVICE_ACCOUNT;
+      // If the string doesn't look like JSON, assume it's Base64 encoded
+      if (!jsonString.trim().startsWith('{')) {
+        jsonString = Buffer.from(jsonString, 'base64').toString('utf8');
+      }
+
+      serviceAccount = JSON.parse(jsonString);
       if (serviceAccount.private_key) {
         serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
       }
