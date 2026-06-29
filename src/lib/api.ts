@@ -6,30 +6,32 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 /** Fetch all public properties (no owner info). */
 export async function getProperties(): Promise<PropertyCardProps[]> {
-  const response = await fetch(`${API_URL}/api/properties`, {
-    next: { revalidate: 300 },
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch properties");
+  try {
+    const response = await fetch(`${API_URL}/api/properties`, {
+      next: { revalidate: 300 },
+    });
+    if (!response.ok) return [];
+    const data: Record<string, any>[] = await response.json();
+    return data.map(mapHostelToPropertyCard);
+  } catch (err) {
+    console.warn("Build time fetch failed for properties, returning empty:", err);
+    return [];
   }
-
-  const data: Record<string, any>[] = await response.json();
-  return data.map(mapHostelToPropertyCard);
 }
 
 /** Fetch top-rated featured properties (sorted by rating, limited to 6). */
 export async function getFeaturedProperties(): Promise<PropertyCardProps[]> {
-  const response = await fetch(`${API_URL}/api/properties/featured`, {
-    next: { revalidate: 300 },
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch featured properties");
+  try {
+    const response = await fetch(`${API_URL}/api/properties/featured`, {
+      next: { revalidate: 300 },
+    });
+    if (!response.ok) return [];
+    const data: Record<string, any>[] = await response.json();
+    return data.map(mapHostelToPropertyCard);
+  } catch (err) {
+    console.warn("Build time fetch failed for featured properties, returning empty:", err);
+    return [];
   }
-
-  const data: Record<string, any>[] = await response.json();
-  return data.map(mapHostelToPropertyCard);
 }
 
 /** Fetch a single property by slug or id. Returns the full Property detail. */
